@@ -1,3 +1,7 @@
+# ----------------------------------------------------------------------------
+# load_data.py
+# Written by Balaji Adhithya V
+# ----------------------------------------------------------------------------
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -69,7 +73,7 @@ def data_ret():
 	bval = beautify(val_data, val_labels)
 	btest = beautify(test_data, test_labels)
 
-	batch_size = 8
+	batch_size = 16
 
 	train_loader = DataLoader(btrain, batch_size,sampler=sampler, shuffle=False)
 	val_loader = DataLoader(bval, batch_size, shuffle=True)
