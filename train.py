@@ -9,7 +9,7 @@ from load_data import data_ret
 import numpy as np
 import time
 
-epochs = 50
+epochs = 60
 batch_size=16
 
 model = SincNet().cuda()
@@ -19,7 +19,7 @@ IN_PATH = "/home/balaji5199/Desktop/KWS/try1.pth"
 model.load_state_dict(torch.load(IN_PATH))
 
 #Training params
-optimizer = torch.optim.Adam(model.parameters(), 0.0005)
+optimizer = torch.optim.Adam(model.parameters(), 0.001)
 scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=10, gamma=0.5)
 
 train_loader, val_loader, test_loader = data_ret()
