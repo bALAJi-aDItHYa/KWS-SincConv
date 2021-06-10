@@ -1,3 +1,7 @@
+# -----------------------------------------------------------------------
+# SincNet_Model.py
+# Written by Balaji Adithya V
+# -----------------------------------------------------------------------
 import torch
 import torch.nn as nn
 from torch import Tensor
@@ -80,8 +84,8 @@ class DSConv_block(nn.Module):
 
 	def forward(self, x):
 		x = self.ds_layers(x)
-		print("In DS_conv_op")
-		print(x.shape)
+		# print("In DS_conv_op")
+		# print(x.shape)
 		x = self.drop(x)
 
 		return x
@@ -139,11 +143,11 @@ class sinc_conv(nn.Module):
 
 		    filters[i,:]=band_pass.cuda()*window
 
-		print(filters.view(40,1,101).shape)
+		# print(filters.view(40,1,101).shape)
 
 		out = F.conv1d(x, filters.view(self.n_filt,1,self.filt_dim), stride=8)
-		print("out in sinc")
-		print(out.shape)
+		# print("out in sinc")
+		# print(out.shape)
 
 		return out
 
@@ -181,7 +185,7 @@ class SincNet(nn.Module):
 		ds_features: List[nn.Module] = []
 		input_channels = n_filt
 		for c,k,s in setting:
-			print(k)
+			# print(k)
 			output_channels = c
 			ds_features.append(DSConv_block(input_channels= input_channels, output_channels=c, kernel_size=k, stride=s))
 			input_channels = output_channels
@@ -191,16 +195,16 @@ class SincNet(nn.Module):
 
 		self.classifier = nn.Sequential(
 			nn.Linear(160, num_classes),
-			nn.LogSoftmax()
+			nn.LogSoftmax(dim=1)
 			)
 
 	def forward(self, x: Tensor)-> Tensor:
 		x = self.sincconv_block(x)
-		print(x.shape)
+		# print(x.shape)
 		x = self.ds_features(x)
 		x = self.global_avg(x)
 		x = torch.flatten(x,1)
-		print(x.shape)		
+		# print(x.shape)		
 		x = self.classifier(x)
 
 		return x
