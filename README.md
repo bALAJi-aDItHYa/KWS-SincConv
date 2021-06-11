@@ -28,44 +28,43 @@ The basic steps involved are:
 The testing accuracy after the following steps is - __94.65%__ over an test-dataset of 6835 audio files
 The number of parameters are - 
 
-              Modules               | Parameters 
-------------------------------------|--------------
-      sincconv_block.0.filt_b1      |     40     
-     sincconv_block.0.filt_band     |     40     
-   sincconv_block.1.bnorm.weight    |     40     
-    sincconv_block.1.bnorm.bias     |     40     
- ds_features.0.ds_layers.0.0.weight |    1000    
-  ds_features.0.ds_layers.0.0.bias  |     40     
- ds_features.0.ds_layers.0.1.weight |    6400    
-  ds_features.0.ds_layers.0.1.bias  |    160     
- ds_features.0.ds_layers.0.3.weight |    160     
-  ds_features.0.ds_layers.0.3.bias  |    160     
- ds_features.1.ds_layers.0.0.weight |    1440    
-  ds_features.1.ds_layers.0.0.bias  |    160     
- ds_features.1.ds_layers.0.1.weight |   25600    
-  ds_features.1.ds_layers.0.1.bias  |    160     
- ds_features.1.ds_layers.0.3.weight |    160     
-  ds_features.1.ds_layers.0.3.bias  |    160     
- ds_features.2.ds_layers.0.0.weight |    1440    
-  ds_features.2.ds_layers.0.0.bias  |    160     
- ds_features.2.ds_layers.0.1.weight |   25600    
-  ds_features.2.ds_layers.0.1.bias  |    160     
- ds_features.2.ds_layers.0.3.weight |    160     
-  ds_features.2.ds_layers.0.3.bias  |    160     
- ds_features.3.ds_layers.0.0.weight |    1440    
-  ds_features.3.ds_layers.0.0.bias  |    160     
- ds_features.3.ds_layers.0.1.weight |   25600    
-  ds_features.3.ds_layers.0.1.bias  |    160     
- ds_features.3.ds_layers.0.3.weight |    160     
- ds_features.3.ds_layers.0.3.bias   |    160     
- ds_features.4.ds_layers.0.0.weight |    1440    
-  ds_features.4.ds_layers.0.0.bias  |    160     
- ds_features.4.ds_layers.0.1.weight |   25600    
-  ds_features.4.ds_layers.0.1.bias  |    160     
- ds_features.4.ds_layers.0.3.weight |    160     
-  ds_features.4.ds_layers.0.3.bias  |    160     
-        classifier.0.weight         |    1920    
-         classifier.0.bias          |     12     
+              Modules                           | Parameters 
+sincconv_block.0.filt_b1      			|40
+sincconv_block.0.filt_band    			|40
+sincconv_block.1.bnorm.weight    		|40
+sincconv_block.1.bnorm.bias     		|40
+ds\_features.0.ds_layers.0.0.weight 		|1000
+ds\_features.0.ds_layers.0.0.bias  		|40
+ds\_features.0.ds_layers.0.1.weight	 	|6400
+ds\_features.0.ds_layers.0.1.bias  		|160
+ds\_features.0.ds_layers.0.3.weight 		|160
+ds\_features.0.ds_layers.0.3.bias  		|160
+ds\_features.1.ds_layers.0.0.weight 		|1440
+ds\_features.1.ds_layers.0.0.bias  		|160
+ds\_features.1.ds_layers.0.1.weight 		|25600
+ds\_features.1.ds_layers.0.1.bias  		|160
+ds\_features.1.ds_layers.0.3.weight 		|160
+ds\_features.1.ds_layers.0.3.bias  		|160
+ds\_features.2.ds_layers.0.0.weight 		|1440
+ds\_features.2.ds_layers.0.0.bias  		|160
+ds\_features.2.ds_layers.0.1.weight 		|25600
+ds\_features.2.ds_layers.0.1.bias  		|160
+ds\_features.2.ds_layers.0.3.weight 		|160
+ds\_features.2.ds_layers.0.3.bias  		|160
+ds\_features.3.ds_layers.0.0.weight   		|1440
+ds\_features.3.ds_layers.0.0.bias       	|160
+ds\_features.3.ds_layers.0.1.weight   		|25600
+ds\_features.3.ds_layers.0.1.bias       	|160 
+ds\_features.3.ds_layers.0.3.weight   		|160 
+ds\_features.3.ds_layers.0.3.bias       	|160 
+ds\_features.4.ds_layers.0.0.weight   		|1440
+ds\_features.4.ds_layers.0.0.bias       	|160 
+ds\_features.4.ds_layers.0.1.weight    		|25600
+ds\_features.4.ds_layers.0.1.bias       	|160 
+ds\_features.4.ds_layers.0.3.weight   		|160 
+ds\_features.4.ds_layers.0.3.bias       	|160 
+classifier.0.weight                             |1920
+classifier.0.bias                               |12 
 
 Total Trainable Params: 120732 ~= __120K parameters__
 
