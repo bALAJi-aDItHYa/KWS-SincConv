@@ -1,11 +1,11 @@
 # KWS-SincConv #
 Applying approximations in the models aimed at the task of Key Word Spotting.
 
-##Dataset used##
+## Dataset used ##
 The dataset used for the project is [Google Speech Commands dataset](https://ai.googleblog.com/2017/08/launching-speech-commands-dataset.html)
 The dataset contains 62K images which can be split into train, test and validation splits based on the txt files provided.
 
-##Training##
+## Training ##
 The basic steps involved are:
 
 ###	1) Preparing the dataset ###
