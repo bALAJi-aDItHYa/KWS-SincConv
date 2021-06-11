@@ -29,6 +29,7 @@ The testing accuracy after the following steps is - __94.65%__ over an test-data
 The number of parameters are - 
 
               Modules                           | Parameters 
+| :---: | :---: | 
 sincconv_block.0.filt_b1      			|40
 sincconv_block.0.filt_band    			|40
 sincconv_block.1.bnorm.weight    		|40
