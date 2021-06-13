@@ -25,7 +25,8 @@ The basic steps involved are:
 3) Adam Optimizer used.
 4) Trained on PyTorch!!
 
-The max. testing accuracy after the following steps is - __95.11%__ over an test-dataset of 6835 audio files, after 40 epochs
+The max. testing accuracy after the following steps is - __95.83%__ over an test-dataset of 6835 audio files, after 40 epochs.
+
 The number of parameters are - 
 
 |              Modules               | Parameters |
