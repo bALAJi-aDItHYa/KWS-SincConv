@@ -21,10 +21,18 @@ def flip(x, dim):
 	return x.view(xsize)
 
 def sinc(band,t_right):
+	temp = torch.abs(2*math.pi*band*t_right)
+	print('max = {}'.format(torch.max(temp)))
+	print('min = {}'.format(torch.min(temp)))
+	print('mean = {}'.format(torch.mean(temp)))
+
 	y_right= torch.sin(2*math.pi*band*t_right)/(2*math.pi*band*t_right)
 	y_left= flip(y_right,0)
+	# print(y_right.shape)
+	# print(y_left.shape)
 
 	y=torch.cat([y_left,Variable(torch.ones(1)).cuda(),y_right])
+	# print(y.shape)
 
 	return y
 
@@ -39,11 +47,30 @@ class log_compression(nn.Module):
 	def forward(self, x):
 		#log - compression (used to scale the range of values from 0-n)
 		x = torch.add(torch.abs(x),1)
-		x = torch.log2(x)
+		x = torch.log2(x)	#torch.log2()/ torch.log()
 
 		x = self.bnorm(x)
 		x = self.avgpool(x)
 		return x
+
+class DS_conv_op_pad(nn.Sequential):
+	def __init__(
+		self,
+		input_channels: int, 
+		output_channels: int, 
+		kernel_size: int, 
+		stride: int, 
+		groups: int
+		) -> None:
+
+		super(DS_conv_op_pad, self).__init__(
+			nn.Conv1d(input_channels, input_channels, kernel_size = kernel_size, stride=stride, groups=input_channels), #Depthwise
+			nn.Conv1d(input_channels, output_channels, kernel_size =1, stride=stride), #Pointwise
+			nn.ReLU(inplace=True),
+			nn.BatchNorm1d(output_channels),
+			nn.AvgPool1d(kernel_size=2, stride=None, padding=1)
+			# nn.AvgPool1d(2)
+			)
 
 class DS_conv_op(nn.Sequential):
 	def __init__(
@@ -60,7 +87,8 @@ class DS_conv_op(nn.Sequential):
 			nn.Conv1d(input_channels, output_channels, kernel_size =1, stride=stride), #Pointwise
 			nn.ReLU(inplace=True),
 			nn.BatchNorm1d(output_channels),
-			nn.AvgPool1d(kernel_size=2, stride=None, padding=1)
+			# nn.AvgPool1d(kernel_size=2, stride=None, padding=1)
+			nn.AvgPool1d(2)
 			)
 
 
@@ -70,14 +98,18 @@ class DSConv_block(nn.Module):
 		input_channels: int,
 		output_channels: int,
 		kernel_size: int,
-		stride: int
+		stride: int,
+		num: int
 		) -> None:
 		super(DSConv_block, self).__init__()
 		self.stride = stride
 		self.kernel_size = kernel_size
 
 		ds_layers: List[nn.Module] = []
-		ds_layers.append(DS_conv_op(input_channels, output_channels, self.kernel_size, self.stride, groups=input_channels))
+		if(num==4 or num==5):
+			ds_layers.append(DS_conv_op_pad(input_channels, output_channels, self.kernel_size, self.stride, groups=input_channels))
+		else:
+			ds_layers.append(DS_conv_op(input_channels, output_channels, self.kernel_size, self.stride, groups=input_channels))
 		
 		self.ds_layers = nn.Sequential(*ds_layers)
 		self.drop = nn.Dropout(0.1)	
@@ -162,12 +194,12 @@ class SincNet(nn.Module):
 		super(SincNet, self).__init__()
 		setting = [
 
-			#c 	#k	#s
-			[160, 25, 2],
-			[160, 9 ,1],
-			[160, 9 ,1],
-			[160, 9 ,1],
-			[160, 9 ,1],					
+			#c 	#k	#s  #num
+			[160, 25, 2,1],
+			[160, 9 ,1,2],
+			[160, 9 ,1,3],
+			[160, 9 ,1,4],
+			[160, 9 ,1,5],					
 		]
 		n_filt = 40 #Output channels from SincConv
 		filt_dim = 101 #Kernel length for sincconv-layer
@@ -184,10 +216,10 @@ class SincNet(nn.Module):
 
 		ds_features: List[nn.Module] = []
 		input_channels = n_filt
-		for c,k,s in setting:
+		for c,k,s,num in setting:
 			# print(k)
 			output_channels = c
-			ds_features.append(DSConv_block(input_channels= input_channels, output_channels=c, kernel_size=k, stride=s))
+			ds_features.append(DSConv_block(input_channels= input_channels, output_channels=c, kernel_size=k, stride=s, num=num))
 			input_channels = output_channels
 		
 		self.ds_features = nn.Sequential(*ds_features)
