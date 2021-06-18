@@ -16,9 +16,11 @@ static const float 	PI_HALF    = 1.570796327;
 static const float 	PI    	   = 3.1415926535;
 static const float  TWO_PI 	   = 6.283185307;
 
-//Something's off with the arctan values... need to check on them
+// Something's off with the arctan values... need to check on them
 // Check out http://www.realitypixels.com/turk/computergraphics/FixedPointTrigonometry.pdf
 
+
+// Arctan values need to be changed
 static const uint16_t arctan[] = {
 	51471,
 	30385,
