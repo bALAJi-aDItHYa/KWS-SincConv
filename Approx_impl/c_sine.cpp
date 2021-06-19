@@ -16,11 +16,9 @@ static const float 	PI_HALF    = 1.570796327;
 static const float 	PI    	   = 3.1415926535;
 static const float  TWO_PI 	   = 6.283185307;
 
-// Something's off with the arctan values... need to check on them
-// Check out http://www.realitypixels.com/turk/computergraphics/FixedPointTrigonometry.pdf
+// Something's off with the arctan values... need to check on them - None
+// Check out http://www.realitypixels.com/turk/computergraphics/FixedPointTrigonometry.pdf 
 
-
-// Arctan values need to be changed
 static const uint16_t arctan[] = {
 	51471,
 	30385,
@@ -77,7 +75,9 @@ void cordic(float angle, float & appr_sin){
 	else
 		abs_ang = angle;
 
-	abs_ang = abs_ang - floor(abs_ang/TWO_PI);
+// Fmod needs hw implementation - must use division here most probably
+// Note all angles/ inputs have been positive values, no neg encountered
+	abs_ang = fmod(abs_ang, TWO_PI);
 	std::cout<<"abs_ang = "<<abs_ang<<std::endl;
 
 	float multiple = abs_ang*TWO_DIV_PI;
@@ -131,7 +131,7 @@ torch::Tensor sine(torch::Tensor input){
 		acc_sin = sin(access[i]);
 
 		err = abs((acc_sin-appr_sin)/acc_sin);
-		if(err>1)
+		if(err>0.001)
 			std::cout<<"Angle= "<<access[i]<<" sin val= "<<appr_sin<<" actual val = "<<acc_sin<<std::endl;
 
 	}
