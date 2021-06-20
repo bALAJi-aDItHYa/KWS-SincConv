@@ -16,34 +16,55 @@ static const float 	PI_HALF    = 1.570796327;
 static const float 	PI    	   = 3.1415926535;
 static const float  TWO_PI 	   = 6.283185307;
 
-// Something's off with the arctan values... need to check on them - None
-// Check out http://www.realitypixels.com/turk/computergraphics/FixedPointTrigonometry.pdf 
+// FIX_PT -> Determines the number of decimal places upto which to be considered
+// NMAX -> Number of iterations in the CORDIC algo
 
-static const uint16_t arctan[] = {
-	51471,
-	30385,
-	16054,
-	8149,
-	4090,
-	2047,
-	1023,
-	511,
-	255,
-	127,
-	63,
-	31,
-	15,
-	7,
-	3,
-	1};
+// These values can be altered to view the effect on the accuracy of the model
+static const int 	FIX_PT 	   = 11;
+static const int 	NMAX 	   = 11;
 
-void compute(float &x, float &y, float phi){
-	int nMax = 16;
+static const float LUT_arctan[] = {
+		0.7853981633974483,
+		0.4636476090008061,
+		0.24497866312686414,
+		0.12435499454676144,
+		0.06241880999595735,
+		0.031239833430268277,
+		0.015623728620476831,
+		0.007812341060101111,
+		0.0039062301319669718,
+		0.0019531225164788188,
+		0.0009765621895593195,
+		0.0004882812111948983,
+		0.00024414062014936177,
+		0.00012207031189367021,
+		6.103515617420877e-05,
+		3.0517578115526096e-05,
+		1.5258789061315762e-05,
+		7.62939453110197e-06,
+		3.814697265606496e-06,
+		1.907348632810187e-06,
+		9.536743164059608e-07
+		};
+
+void compute(float &x, float &y, float phi, int fix_pt){
+	
+	int nMax = NMAX;
 	int z_r, z_i;
 	int z_r_tmp, z_i_tmp;
-	int p_tmp = (int)(phi * 65536);
-	int x_tmp = (int)(x * 65536);
-	int y_tmp = (int)(y * 65536);
+
+	// Shifting the input values based on the fix_pt value -> informs about the number of significant digits after the decimal place
+	int p_tmp = (int)(phi*pow(2,fix_pt));
+	int x_tmp = (int)(x*pow(2,fix_pt));
+	int y_tmp = (int)(y*pow(2,fix_pt));	
+
+	uint16_t arctan[nMax];
+
+	for(int i=0; i<nMax; i++){
+		float tmp = LUT_arctan[i];
+		// Shifting the float values to a shifted version based on the fix_pt value which determines the number of significant digits after the decimal place
+		arctan[i] = (uint16_t)(tmp*pow(2,fix_pt));
+	}
 
 	for(int i=0; i<nMax; i++){
 		int a = arctan[i];
@@ -64,8 +85,11 @@ void compute(float &x, float &y, float phi){
 		x_tmp = z_r;
 		y_tmp = z_i;
 	}
-	x = (float)x_tmp/65535.f;
-	y = (float)y_tmp/65535.f;
+
+	// Dividing by the shifted value
+	x = (float)x_tmp/((float)(1<<fix_pt)-1);
+	y = (float)y_tmp/((float)(1<<fix_pt)-1);
+
 }
 
 void cordic(float angle, float & appr_sin){
@@ -75,10 +99,9 @@ void cordic(float angle, float & appr_sin){
 	else
 		abs_ang = angle;
 
-// Fmod needs hw implementation - must use division here most probably
-// Note all angles/ inputs have been positive values, no neg encountered
+	//  fmod function has both division and multiplication - very costly operator
+	//  This function is used to bring the input angles in the range of [0,2*pi]
 	abs_ang = fmod(abs_ang, TWO_PI);
-	std::cout<<"abs_ang = "<<abs_ang<<std::endl;
 
 	float multiple = abs_ang*TWO_DIV_PI;
 	int intK = multiple;
@@ -93,19 +116,19 @@ void cordic(float angle, float & appr_sin){
 
 	float z_r = 0.607252935;
 	float z_i = 0;
+	int fix_pt = FIX_PT;
 
-	compute(z_r, z_i, alpha);
+	compute(z_r, z_i, alpha, fix_pt);
 
-	if (intK==0)
+	if (intK==0) // First quadrant
 		appr_sin = z_i;
-	else if(intK==1)
+	else if(intK==1) // Second quadrant
 		appr_sin = z_i;
-	else if(intK==2)
+	else if(intK==2) // Third quadrant
 		appr_sin = -z_i;
-	else
+	else // Fourth quadrant
 		appr_sin = -z_i;
 
-	// appr_sin = -appr_sin;
 	if(angle<0)
 		appr_sin = -appr_sin;
 }
@@ -117,30 +140,11 @@ torch::Tensor sine(torch::Tensor input){
 	torch::Tensor output = torch::zeros(torch::IntArrayRef({dim}));
 	auto access = input.accessor<float,1>();
 
-	//Look into CUDA accessors
-
-	// std::cout<<"I'm inside the c++ extension"<<std::endl;
-	// std::cout<<access.size(0)<<std::endl;
-
 	for (int i=0; i < access.size(0); i++){
-		float appr_sin, acc_sin;
-		float err;
-		// appr_sin = sin(access[i]);
+		float appr_sin;
 		cordic(access[i], appr_sin);
 		output[i] = appr_sin;
-		acc_sin = sin(access[i]);
-
-		err = abs((acc_sin-appr_sin)/acc_sin);
-		if(err>0.001)
-			std::cout<<"Angle= "<<access[i]<<" sin val= "<<appr_sin<<" actual val = "<<acc_sin<<std::endl;
-
 	}
-
-	// for (int i=0; i<dim; i++){
-	// 	float appr_sin;
-	// 	cordic(input[i].data_ptr<float>(), appr_sin);
-	// 	output[i] = appr_sin;
-	// }
 
 	return output;
 }
