@@ -27,7 +27,75 @@ lookup_div = np.zeros((256,256))
 for row in rows[1:]:
 	lookup_div[row[0]][row[1]] = row[2]
 
-def SimDive(a, b):
+
+def SimDive_16bit(a, b):
+	out = torch.zeros(a.shape)
+	sign = 0
+
+	for i in range(a.size(0)):
+		
+		if((a[i]>0 and b[i]>0) or (a[i]<0 and b[i]<0)):
+			sign = 1
+		else:
+			sign = -1
+
+		t1 = abs(a[i]*(2**15))
+		t2 = abs(b[i])
+
+		p = 1
+		q = 1
+
+# ------ Adjust Denominator Values -------- (Denominator in range (0, 192])
+		if(t2 < 1):
+			t2 = t2 * (2**8)
+			p = (2**8)
+
+		elif(t2>=1 and t2<16):
+			t2 = t2 * (2**4)
+			p = 2**4
+
+		elif(t2>=16 and t2<32):
+			t2 = t2 * 2**3
+			p = 2**3
+
+		elif(t2>=32 and t2<64):
+			t2 = t2 * 2**2
+			p = 2**2
+
+		elif(t2>=64 and t2<128):
+			t2 = t2 * 2
+			p = 2
+
+		elif(t2>=128):
+			t2 = t2
+			p = 1
+
+# ------ Check if the nr > dr value; if not do so --------------------
+
+		if(t1 < t2):
+			t1 = t1 * 8
+			q = q * 8
+
+		t1 = int(t1.round())
+		t2 = int(t2.round())
+
+# int(t1/t2) -> equivalent to the lookup from (2**16) * (2**16) division lookup table 
+# (Tested with 256 * 256 table as well. Produces the same result)
+
+		out[i] = sign * (int(t1/t2) * p)/(q * (2**15))
+		# error = abs(out[i] - a[i]/b[i])/abs(a[i]/b[i]) * 100
+
+		# if(error > 20.0 and out[i]>0.01):
+		# 	print("\n")
+		# 	print("Error = {}".format(error))
+		# 	print("out = {}".format(out[i]))
+		# 	print("Expected = {}".format(a[i]/b[i]))
+		# 	print("t1 = {}, t2 = {}".format(t1, t2))
+		# 	print("a = {}, b = {}".format(a[i], b[i]))
+	return out
+
+
+def SimDive_8bit(a, b):
 	out = torch.zeros(a.shape)
 	sign=0
 
@@ -96,7 +164,9 @@ def flip(x, dim):
 
 def sinc(band,t_right):
 	y_right = approx_sine((2*math.pi*band*t_right)%(2*math.pi))
-	y_right = SimDive(y_right, 2*math.pi*band*t_right).cuda()
+
+	# Select the 16-bit or 8-bit representation of SIMDive
+	y_right = SimDive_16bit(y_right, 2*math.pi*band*t_right).cuda()
 	y_left= flip(y_right,0).cuda()
 
 	y=torch.cat([y_left,Variable(torch.ones(1)).cuda(),y_right])
