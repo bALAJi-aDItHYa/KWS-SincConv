@@ -75,13 +75,12 @@ Total Trainable Params: 120732 ~= __120K parameters__
 Size of the final model on Disk - __500KB__
 
 ## Approximations ##
-<pre>
+
 The approximations were made in the following 3 knobs. Further the effect on accuracy was recorded.
 1) Sine function - CORDIC implementation - (best results with 16-bit fixed point)
 2) Division - [SIMDive](https://arxiv.org/abs/2011.01148) division - (best results with 16-bit fixed point representation)
-3) Log compression function - log(1+x) --> x 			 ,if 0 < x < 1
+3) Log compression function - log(1+x) --> x 			 ,if 0 < x < 1 <br />
 				       --> log(2^i(1+f)) = i + f ,if x > 1
-</pre>
 
 ### Best-case Results from Approximations ###
 
