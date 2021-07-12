@@ -74,6 +74,22 @@ Total Trainable Params: 120732 ~= __120K parameters__
 
 Size of the final model on Disk - __500KB__
 
+## Approximations ##
+The approximations were made in the following 3 knobs. Further the effect on accuracy was recorded.
+1) Sine function - CORDIC implementation - (best results with 16-bit fixed point)
+2) Division - [SIMDive](https://arxiv.org/abs/2011.01148) division - (best results with 16-bit fixed point representation)
+3) Log compression function - log(1+x) --> x 			 ,if 0 < x < 1
+				       --> log(2^i(1+f)) = i + f ,if x > 1
+
+### Best-case Results from Approximations ###
+
+| Method | Accuracy |
+| :---: | :---: |
+| Accurate | 95.83% |
+| CORDIC (16-bit) | 95.84 % |
+| CORDIC(16-bit) + SIMDive (16-bit) |  |
+| CORDIC + SIMDive + approx_log_compression (13-bit) | 95.10% |
+
 ## Further steps ##
 The next step is applying approximation in the sinc and log compression functions in the model and observe the effect on model accuracy.
 Proposed approximation techniques for 
