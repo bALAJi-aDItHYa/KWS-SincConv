@@ -79,7 +79,7 @@ Size of the final model on Disk - __500KB__
 The approximations were made in the following 3 knobs. Further the effect on accuracy was recorded.
 1) Sine function - CORDIC implementation - (best results with 16-bit fixed point)
 2) Division - [SIMDive](https://arxiv.org/abs/2011.01148) division - (best results with 16-bit fixed point representation)
-3) Log compression function - log(1+x) --> x 			 ,if 0 < x < 1 <br />
+3) Log compression function - log(1+x) --> x <p>&nbsp;</p> ,if 0 < x < 1 <br />
 				       --> log(2^i(1+f)) = i + f ,if x > 1
 
 ### Best-case Results from Approximations ###
